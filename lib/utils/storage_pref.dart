@@ -23,6 +23,7 @@ import 'package:PiliPlus/models/common/super_chat_time_type.dart';
 import 'package:PiliPlus/models/common/super_chat_type.dart';
 import 'package:PiliPlus/models/common/super_resolution_type.dart';
 import 'package:PiliPlus/models/common/theme/theme_type.dart';
+import 'package:PiliPlus/models/common/hdr_type.dart';
 import 'package:PiliPlus/models/common/video/audio_quality.dart';
 import 'package:PiliPlus/models/common/video/author_play_speed.dart';
 import 'package:PiliPlus/models/common/video/cdn_type.dart';
@@ -1784,4 +1785,44 @@ abstract final class Pref {
 
   static bool get enableEmoteTooltip =>
       _setting.get(SettingBoxKey.enableEmoteTooltip, defaultValue: false);
+
+  // HDR 相关设置
+  static int get hdrMode =>
+      _setting.get(SettingBoxKey.hdrMode, defaultValue: 0);
+
+  static set hdrMode(int value) =>
+      _setting.put(SettingBoxKey.hdrMode, value);
+
+  static HdrMode get parsedHdrMode =>
+      HdrMode.values.getOrNull(hdrMode) ?? HdrMode.auto;
+
+  static int get toneMappingAlgorithm =>
+      _setting.get(SettingBoxKey.toneMappingAlgorithm, defaultValue: 0);
+
+  static set toneMappingAlgorithm(int value) =>
+      _setting.put(SettingBoxKey.toneMappingAlgorithm, value);
+
+  static int get highlightProtect =>
+      _setting.get(SettingBoxKey.highlightProtect, defaultValue: 50);
+
+  static set highlightProtect(int value) =>
+      _setting.put(SettingBoxKey.highlightProtect, value.clamp(0, 100));
+
+  static int get dynamicRangeExpand =>
+      _setting.get(SettingBoxKey.dynamicRangeExpand, defaultValue: 50);
+
+  static set dynamicRangeExpand(int value) =>
+      _setting.put(SettingBoxKey.dynamicRangeExpand, value.clamp(0, 100));
+
+  static int get ditherAlgorithm =>
+      _setting.get(SettingBoxKey.ditherAlgorithm, defaultValue: 0);
+
+  static set ditherAlgorithm(int value) =>
+      _setting.put(SettingBoxKey.ditherAlgorithm, value);
+
+  static int get ditherIntensity =>
+      _setting.get(SettingBoxKey.ditherIntensity, defaultValue: 50);
+
+  static set ditherIntensity(int value) =>
+      _setting.put(SettingBoxKey.ditherIntensity, value.clamp(0, 100));
 }

@@ -30,6 +30,8 @@ class ExoPlayerEvent {
     this.mediaDescription,
     this.playbackConfiguration,
     this.superResolution,
+    this.hdrMode,
+    this.hdrContentDetected,
     this.failure,
   });
 
@@ -56,6 +58,8 @@ class ExoPlayerEvent {
   final String? mediaDescription;
   final String? playbackConfiguration;
   final String? superResolution;
+  final String? hdrMode;
+  final bool? hdrContentDetected;
   final ExoPlayerPlaybackFailure? failure;
 
   factory ExoPlayerEvent.fromMap(Map<Object?, Object?> map) {
@@ -263,6 +267,12 @@ class ExoPlayerController {
             superResolution: event.containsKey('superResolution')
                 ? next.superResolution
                 : player.state.superResolution,
+            hdrMode: event.containsKey('hdrMode')
+                ? next.hdrMode
+                : player.state.hdrMode,
+            hdrContentDetected: event.containsKey('hdrContentDetected')
+                ? (next.hdrContentDetected ?? false)
+                : player.state.hdrContentDetected,
             failure: next.failure,
           );
           player._controller.add(player.state);
@@ -418,6 +428,39 @@ class ExoPlayerController {
     'groupIndex': track?.groupIndex,
     'trackIndex': track?.trackIndex,
   });
+
+  Future<void> setHdrMode(String mode) =>
+      _methods.invokeMethod<void>('setHdrMode', {'id': id, 'mode': mode});
+
+  Future<void> setToneMappingAlgorithm(int index) =>
+      _methods.invokeMethod<void>('setToneMapping', {
+        'id': id,
+        'algorithm': index,
+      });
+
+  Future<void> setHighlightProtect(int value) =>
+      _methods.invokeMethod<void>('setHighlightProtect', {
+        'id': id,
+        'value': value,
+      });
+
+  Future<void> setDynamicRangeExpand(int value) =>
+      _methods.invokeMethod<void>('setDynamicRangeExpand', {
+        'id': id,
+        'value': value,
+      });
+
+  Future<void> setDitherAlgorithm(int index) =>
+      _methods.invokeMethod<void>('setDitherAlgorithm', {
+        'id': id,
+        'algorithm': index,
+      });
+
+  Future<void> setDitherIntensity(int value) =>
+      _methods.invokeMethod<void>('setDitherIntensity', {
+        'id': id,
+        'value': value,
+      });
 
   Future<void> _invoke(String method) =>
       _methods.invokeMethod<void>(method, {'id': id});
