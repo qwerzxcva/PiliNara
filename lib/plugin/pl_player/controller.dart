@@ -12,7 +12,6 @@ import 'package:PiliPlus/http/video.dart';
 import 'package:PiliPlus/models/common/account_type.dart';
 import 'package:PiliPlus/models/common/audio_normalization.dart';
 import 'package:PiliPlus/models/common/super_resolution_type.dart';
-import 'package:PiliPlus/models/common/hdr_type.dart';
 import 'package:PiliPlus/models/common/video/video_type.dart';
 import 'package:PiliPlus/models/user/danmaku_rule.dart';
 import 'package:PiliPlus/models/video/play/url.dart';
@@ -2614,50 +2613,5 @@ class PlPlayerController with BlockConfigMixin, AudioNormalizationMixin {
     Get.back();
   }
 
-  // HDR 相关方法
-  Future<void> setHdrMode(HdrMode mode) async {
-    Pref.hdrMode = mode.index;
-    if (useExoPlayer) {
-      await _exoPlayerController?.setHdrMode(mode.name);
-    }
-  }
-
-  Future<void> setToneMappingAlgorithm(int index) async {
-    Pref.toneMappingAlgorithm = index;
-    if (useExoPlayer) {
-      await _exoPlayerController?.setToneMappingAlgorithm(index);
-    }
-  }
-
-  Future<void> setHighlightProtect(int value) async {
-    Pref.highlightProtect = value;
-    if (useExoPlayer) {
-      await _exoPlayerController?.setHighlightProtect(value);
-    }
-  }
-
-  Future<void> setDynamicRangeExpand(int value) async {
-    Pref.dynamicRangeExpand = value;
-    if (useExoPlayer) {
-      await _exoPlayerController?.setDynamicRangeExpand(value);
-    }
-  }
-
-  Future<void> setDitherAlgorithm(int index) async {
-    Pref.ditherAlgorithm = index;
-    if (useExoPlayer) {
-      await _exoPlayerController?.setDitherAlgorithm(index);
-    }
-  }
-
-  Future<void> setDitherIntensity(int value) async {
-    Pref.ditherIntensity = value;
-    if (useExoPlayer) {
-      await _exoPlayerController?.setDitherIntensity(value);
-    }
-  }
-
-  bool get isHdrModeEnabled => Pref.hdrMode != HdrMode.disabled.index;
-  bool get isHdrContentDetected => _exoPlayerController?.state.hdrContentDetected ?? false;
-  HdrMode get currentHdrMode => Pref.parsedHdrMode;
 }
+

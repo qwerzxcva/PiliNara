@@ -429,15 +429,6 @@ class ExoPlayerController {
     'trackIndex': track?.trackIndex,
   });
 
-  Future<void> setHdrMode(String mode) =>
-      _methods.invokeMethod<void>('setHdrMode', {'id': id, 'mode': mode});
-
-  Future<void> setToneMappingAlgorithm(int index) =>
-      _methods.invokeMethod<void>('setToneMapping', {
-        'id': id,
-        'algorithm': index,
-      });
-
   Future<void> setHighlightProtect(int value) =>
       _methods.invokeMethod<void>('setHighlightProtect', {
         'id': id,

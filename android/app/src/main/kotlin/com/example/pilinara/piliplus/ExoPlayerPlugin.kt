@@ -221,18 +221,6 @@ private class ExoPlayerManager(
                     )
                     result.success(null)
                 }
-                "setHdrMode" -> {
-                    requiredSession(call).setHdrMode(call.requiredString("mode"))
-                    result.success(null)
-                }
-                "setToneMapping" -> {
-                    requiredSession(call).setToneMappingAlgorithm(
-                        call.argument<Number>("algorithm")?.toInt() ?: 0,
-                    )
-                    result.success(null)
-                }
-                "setHighlightProtect" -> {
-                    requiredSession(call).setHighlightProtect(
                         call.argument<Number>("value")?.toInt() ?: 50,
                     )
                     result.success(null)
@@ -393,15 +381,6 @@ private class ExoPlayerSession(
     private var superResolutionTarget: Media3SuperResolutionTarget? = null
     private var superResolutionDescription = "disabled"
 
-    // HDR 相关状态
-    private var hdrMode = "auto"
-    private var toneMappingAlgorithm = 0
-    private var highlightProtect = 50
-    private var dynamicRangeExpand = 50
-    private var ditherAlgorithm = 0
-    private var ditherIntensity = 50
-    private var hdrContentDetected = false
-    private var hdrDescription = "disabled"
     private var mediaGeneration = 0L
     private val mainHandler = Handler(Looper.getMainLooper())
     private val captureExecutor = Executors.newSingleThreadExecutor()
@@ -690,69 +669,6 @@ private class ExoPlayerSession(
         emitState()
     }
 
-    // HDR 方法
-    fun setHdrMode(mode: String) {
-        hdrMode = mode
-        updateHdrEffects()
-        emitState()
-    }
-
-    fun setToneMappingAlgorithm(index: Int) {
-        toneMappingAlgorithm = index
-        updateHdrEffects()
-        emitState()
-    }
-
-    fun setHighlightProtect(value: Int) {
-        highlightProtect = value.coerceIn(0, 100)
-        updateHdrEffects()
-        emitState()
-    }
-
-    fun setDynamicRangeExpand(value: Int) {
-        dynamicRangeExpand = value.coerceIn(0, 100)
-        updateHdrEffects()
-        emitState()
-    }
-
-    fun setDitherAlgorithm(index: Int) {
-        ditherAlgorithm = index
-        updateHdrEffects()
-        emitState()
-    }
-
-    fun setDitherIntensity(value: Int) {
-        ditherIntensity = value.coerceIn(0, 100)
-        updateHdrEffects()
-        emitState()
-    }
-
-    private fun updateHdrEffects() {
-        // HDR 效果将在 onVideoSizeChanged 中应用
-        hdrDescription = buildHdrDescription()
-    }
-
-    private fun buildHdrDescription(): String {
-        return when (hdrMode) {
-            "disabled" -> "disabled"
-            "sdr-to-hdr" -> "SDR→HDR (${toneMappingAlgorithmDesc()}, highlight=${highlightProtect}%, dither=${ditherAlgorithmDesc()})"
-            else -> "auto (${if (hdrContentDetected) "HDR detected" else "SDR"})"
-        }
-    }
-
-    private fun toneMappingAlgorithmDesc(): String = when (toneMappingAlgorithm) {
-        1 -> "Reinhard"
-        2 -> "Mobius"
-        3 -> "Custom"
-        else -> "Default"
-    }
-
-    private fun ditherAlgorithmDesc(): String = when (ditherAlgorithm) {
-        1 -> "Floyd-Steinberg"
-        2 -> "Ordered"
-        else -> "Disabled"
-    }
-
     override fun onVideoSizeChanged(videoSize: VideoSize) {
         val sourceFormat = player.videoFormat
         val nextSourceWidth = sourceFormat?.width?.takeIf { it > 0 }
@@ -766,67 +682,6 @@ private class ExoPlayerSession(
             sourceVideoHeight = nextSourceHeight
             applySuperResolutionEffect()
         }
-
-        // 检测 HDR 内容
-        val colorInfo = sourceFormat?.colorInfo
-        val isHdrContent = detectHdrContent(colorInfo)
-        if (isHdrContent != hdrContentDetected) {
-            hdrContentDetected = isHdrContent
-            applyHdrEffects()
-        }
-
-        val textureWidth = videoSize.width.coerceAtLeast(1)
-        val textureHeight = videoSize.height.coerceAtLeast(1)
-        rotationDegrees = videoSize.unappliedRotationDegrees
-        if (rotationDegrees % 180 == 0) {
-            width = (videoSize.width * videoSize.pixelWidthHeightRatio)
-                .roundToInt()
-                .coerceAtLeast(1)
-            height = videoSize.height.coerceAtLeast(1)
-        } else {
-            width = videoSize.height.coerceAtLeast(1)
-            height = (videoSize.width * videoSize.pixelWidthHeightRatio)
-                .roundToInt()
-                .coerceAtLeast(1)
-        }
-        if (surfaceProducer.width != textureWidth ||
-            surfaceProducer.height != textureHeight
-        ) {
-            surfaceProducer.setSize(textureWidth, textureHeight)
-        }
-        emitState()
-    }
-
-    private fun detectHdrContent(colorInfo: ColorInfo?): Boolean {
-        if (colorInfo == null) return false
-        val colorTransfer = colorInfo.colorTransfer
-        return colorTransfer == C.COLOR_TRANSFER_HLG ||
-            colorTransfer == C.COLOR_TRANSFER_SMpte2084 || // PQ
-            colorInfo.toneMappingMethod != -1 // METHOD_NONE
-    }
-
-    private fun applyHdrEffects() {
-        if (hdrMode == "disabled" || !hdrContentDetected) {
-            if (player.videoEffects.isNotEmpty()) {
-                player.setVideoEffects(emptyList())
-            }
-            hdrDescription = "disabled"
-            return
-        }
-
-        // SDR→HDR 色调映射
-        if (hdrMode == "sdr-to-hdr") {
-            val effects = mutableListOf<Effect>()
-            // 添加色调映射效果（简化实现）
-            effects.add(HdrToneMappingEffect(
-                algorithm = toneMappingAlgorithm,
-                highlightProtect = highlightProtect / 100.0,
-                dynamicRangeExpand = dynamicRangeExpand / 100.0,
-            ))
-            player.setVideoEffects(effects)
-            hdrDescription = buildHdrDescription()
-        }
-    }
 
     override fun onCues(cueGroup: CueGroup) {
         val cues = cueGroup.cues.toList()

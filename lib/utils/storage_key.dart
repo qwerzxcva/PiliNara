@@ -207,13 +207,6 @@ abstract final class SettingBoxKey {
       liveStream = 'liveStream',
       enableDocProvider = 'enableDocProvider',
       enableEmoteTooltip = 'enableEmoteTooltip',
-      // HDR 相关设置
-      hdrMode = 'hdrMode',
-      toneMappingAlgorithm = 'toneMappingAlgorithm',
-      highlightProtect = 'highlightProtect',
-      dynamicRangeExpand = 'dynamicRangeExpand',
-      ditherAlgorithm = 'ditherAlgorithm',
-      ditherIntensity = 'ditherIntensity';
 
   static const String enableAiChat = 'enableAiChat',
       aiApiUrl = 'aiApiUrl',
