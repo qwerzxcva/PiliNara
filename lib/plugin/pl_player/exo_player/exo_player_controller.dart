@@ -30,7 +30,7 @@ class ExoPlayerEvent {
     this.mediaDescription,
     this.playbackConfiguration,
     this.superResolution,
-    this.hdrContentDetected,
+    this.hdrMode,
     this.failure,
   });
 
@@ -57,7 +57,7 @@ class ExoPlayerEvent {
   final String? mediaDescription;
   final String? playbackConfiguration;
   final String? superResolution;
-  final bool? hdrContentDetected;
+  final String? hdrMode;
   final ExoPlayerPlaybackFailure? failure;
 
   factory ExoPlayerEvent.fromMap(Map<Object?, Object?> map) {
@@ -265,9 +265,9 @@ class ExoPlayerController {
             superResolution: event.containsKey('superResolution')
                 ? next.superResolution
                 : player.state.superResolution,
-            hdrContentDetected: event.containsKey('hdrContentDetected')
-                ? (next.hdrContentDetected ?? false)
-                : player.state.hdrContentDetected,
+            hdrMode: event.containsKey('hdrMode')
+                ? next.hdrMode
+                : player.state.hdrMode,
             failure: next.failure,
           );
           player._controller.add(player.state);

@@ -4,7 +4,6 @@ import 'package:PiliPlus/common/widgets/custom_icon.dart';
 import 'package:PiliPlus/models/common/super_chat_time_type.dart';
 import 'package:PiliPlus/models/common/super_chat_type.dart';
 import 'package:PiliPlus/models/common/video/subtitle_pref_type.dart';
-import 'package:PiliPlus/models/common/hdr_type.dart';
 import 'package:PiliPlus/pages/main/controller.dart';
 import 'package:PiliPlus/pages/setting/models/model.dart';
 import 'package:PiliPlus/pages/setting/pages/fullscreen_sc_size.dart';
@@ -54,18 +53,6 @@ List<SettingsModel> get playSettings => [
     leading: const Icon(Icons.speed_outlined),
     title: '倍速设置',
     subtitle: '设置视频播放速度',
-  ),
-  NormalModel(
-    onTap: (context, setState) => Get.toNamed('/playbackStats'),
-    leading: const Icon(Icons.bar_chart_outlined),
-    title: '播放统计',
-    subtitle: '查看倍速使用、时间节约等统计',
-  ),
-  NormalModel(
-    onTap: (context, setState) => Get.toNamed('/trafficStats'),
-    leading: const Icon(Icons.network_cell_outlined),
-    title: '流量统计',
-    subtitle: '查看网络上下行流量',
   ),
   if (Platform.isAndroid)
     NormalModel(
@@ -149,45 +136,6 @@ List<SettingsModel> get playSettings => [
     setKey: SettingBoxKey.enableTwoFingerTapPause,
     defaultVal: false,
   ),
-  if (Platform.isAndroid) ...[
-    PopupModel(
-      title: 'HDR 模式',
-      leading: const Icon(Icons.wb_sunny_outlined),
-      value: () => Pref.parsedHdrMode,
-      items: HdrMode.values,
-      onSelected: (value, setState) {
-        Pref.hdrMode = value.index;
-        PlPlayerController.instance?.setHdrMode(value);
-        setState();
-      },
-    ),
-    if (Pref.parsedHdrMode == HdrMode.sdrToHdr) ...[
-      PopupModel(
-        title: '色调映射算法',
-        leading: const Icon(Icons.tune),
-        value: () => ToneMappingAlgorithm.values
-            .getOrNull(Pref.toneMappingAlgorithm) ?? ToneMappingAlgorithm.default_,
-        items: ToneMappingAlgorithm.values,
-        onSelected: (value, setState) {
-          Pref.toneMappingAlgorithm = value.index;
-          PlPlayerController.instance?.setToneMappingAlgorithm(value.index);
-          setState();
-        },
-      ),
-      NormalModel(
-        title: '高光保护',
-        leading: const Icon(Icons.brightness_high),
-        getSubtitle: () => '当前:「${Pref.highlightProtect}%」',
-        onTap: (_, setState) => _showHighlightProtectDialog(setState),
-      ),
-      NormalModel(
-        title: '动态范围扩展',
-        leading: const Icon(Icons.filter_vintage),
-        getSubtitle: () => '当前:「${Pref.dynamicRangeExpand}%」',
-        onTap: (_, setState) => _showDynamicRangeDialog(setState),
-      ),
-    ],
-  ],
   const SwitchModel(
     title: '左右侧滑动调节亮度/音量',
     leading: Icon(MdiIcons.tuneVerticalVariant),
@@ -464,13 +412,6 @@ List<SettingsModel> get playSettings => [
     setKey: SettingBoxKey.tempPlayerConf,
     defaultVal: false,
   ),
-  if (PlatformUtils.isDesktop)
-    NormalModel(
-      onTap: (context, setState) => Get.toNamed('/tvRemoteSetup'),
-      leading: const Icon(Icons.tv_outlined),
-      title: 'TV 遥控器模式',
-      subtitle: '针对电视/投影仪大屏优化',
-    ),
 ];
 
 Future<void> _showSubtitleDialog(
@@ -614,44 +555,5 @@ Future<void> showVolumeDialog(
   );
   if (res != null) {
     onChanged(res);
-  }
-}
-
-// HDR 相关对话框
-Future<void> _showHighlightProtectDialog(VoidCallback setState) async {
-  final res = await showDialog<int>(
-    context: Get.context!,
-    builder: (context) => SliderDialog(
-      title: const Text('高光保护'),
-      min: 0.0,
-      max: 100.0,
-      divisions: 100,
-      precise: 0,
-      value: Pref.highlightProtect.toDouble(),
-      suffix: '%',
-    ),
-  );
-  if (res != null) {
-    await PlPlayerController.instance?.setHighlightProtect(res);
-    setState();
-  }
-}
-
-Future<void> _showDynamicRangeDialog(VoidCallback setState) async {
-  final res = await showDialog<int>(
-    context: Get.context!,
-    builder: (context) => SliderDialog(
-      title: const Text('动态范围扩展'),
-      min: 0.0,
-      max: 100.0,
-      divisions: 100,
-      precise: 0,
-      value: Pref.dynamicRangeExpand.toDouble(),
-      suffix: '%',
-    ),
-  );
-  if (res != null) {
-    await PlPlayerController.instance?.setDynamicRangeExpand(res);
-    setState();
   }
 }
